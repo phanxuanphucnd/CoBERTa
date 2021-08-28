@@ -25,8 +25,8 @@ CosoBERTa is a pre-trained models are the pretrained language models for Comment
 
 Model | #params | Arch.	 | Pre-training data
 ---|---|---|---
-`cosobert-mini` | 50M | mini | 5GB of texts
-`cosobert-small` | 70M | small | 5GB of texts
+`cosoberta-mini` | 50M | mini | 5GB of texts
+`cosoberta-small` | 70M | small | 5GB of texts
 
 ## License
 
