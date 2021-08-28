@@ -7,9 +7,9 @@
     - [Example usage](#usage)
 
 
-# <a name='introduction'></a> CoBERTa
+# <a name='introduction'></a> CosoBERTa
 
-CosoBERTa is a pre-trained models are the pretrained language models for Comment/ Social Vietnamese dataset:
+CosoBERTa is a pre-trained models are the pre-trained language models for Comment/ Social Vietnamese datasets:
 
  - Two CosoBERTa versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment/ Social Vietnamese. CosoBERTa pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
  - CosoBERTa is the basic for improve the performance of downstream Vietnames tasks in Social Networks.
