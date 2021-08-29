@@ -1,21 +1,21 @@
 ### Table of contents
 
 1. [Introduction](#introduction)
-2. [How to use ``CosoBERTa``](#how_to_use_soberta)
+2. [How to use ``CoBERTa``](#how_to_use_coberta)
     - [Installation](#installation)
     - [Pre-trained models](#models)
     - [Example usage](#usage)
 
 
-# <a name='introduction'></a> CosoBERTa
+# <a name='introduction'></a> CoBERTa
 
-CosoBERTa is a pre-trained models are the pre-trained language models for Comment/ Social Vietnamese datasets:
+CoBERTa is a pre-trained models are the pre-trained language models for Comment-in-social/ Conversation Vietnamese datasets:
 
- - Two CosoBERTa versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment/ Social Vietnamese. CosoBERTa pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
- - CosoBERTa is the basic for improve the performance of downstream Vietnames tasks in Social Networks.
+ - Two CoBERTa versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment-in-Social/ Conversation Vietnamese. CoBERTa pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
+ - CoBERTa is the basic for improve the performance of downstream Vietnames tasks in Social Networks.
 
 
-# <a name='how_to_use_aubbert'></a> How to use AuBBERT
+# <a name='how_to_use_coberta'></a> How to use CoBERTa
 
 ## Installation <a name='installation'></a>
 
@@ -25,8 +25,8 @@ CosoBERTa is a pre-trained models are the pre-trained language models for Commen
 
 Model | #params | Arch.	 | Pre-training data
 ---|---|---|---
-`cosoberta-mini` | 50M | mini | 5GB of texts
-`cosoberta-small` | 70M | small | 5GB of texts
+`coberta-mini` | 50M | mini | 5GB of texts
+`coberta-small` | 70M | small | 5GB of texts
 
 ## License
 
