@@ -9,10 +9,10 @@
 
 # <a name='introduction'></a> CoBERTa
 
-CoBERTa is a pre-trained models are the pre-trained language models for Comment-in-social/ Conversation Vietnamese datasets:
+`CoBERTa` is a pre-trained models are the pre-trained language models for Comment-in-social/ Conversation Vietnamese datasets:
 
- - Two CoBERTa versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment-in-Social/ Conversation Vietnamese. CoBERTa pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
- - CoBERTa is the basic for improve the performance of downstream Vietnames tasks in Social Networks.
+ - Two `CoBERTa` versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment-in-Social/ Conversation Vietnamese. `CoBERTa` pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
+ - `CoBERTa` is the basic for improve the performance of downstream Vietnames tasks in Social Networks.
 
 
 # <a name='how_to_use_coberta'></a> How to use CoBERTa
