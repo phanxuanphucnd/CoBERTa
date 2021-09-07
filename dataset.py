@@ -45,7 +45,7 @@ class CoLMDataset(Dataset):
         
         batch_encoding = tokenizer(all_lines, add_special_tokens=True, truncation=True, max_length=block_size)
         self.examples = batch_encoding["input_ids"]
-        # self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
+        self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
 
     def __len__(self):
         return len(self.examples)
