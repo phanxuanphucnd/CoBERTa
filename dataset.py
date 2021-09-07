@@ -3,6 +3,7 @@
 
 import torch
 
+from typing import Dict
 from pathlib import Path
 from torch.utils.data import Dataset
 from tokenizers.processors import BertProcessing
@@ -15,8 +16,8 @@ class CoLMDataset(Dataset):
         root: str='./data', 
         mode: str='train', 
         tokenizer: PreTrainedTokenizerBase=None,
-        vocab_file: str='./models/CoBERTa-mini/vocab.json',
-        merges_file: str='./models/CoBERTa-mini/merges.txt',
+        vocab_file: str='coberta-mini/vocab.json',
+        merges_file: str='coberta-mini/merges.txt',
         max_length: int=256,
         block_size: int=128
     ) -> None:
@@ -28,20 +29,26 @@ class CoLMDataset(Dataset):
             )
             tokenizer._tokenizer.post_processor = BertProcessing(
                 ('</s>', tokenizer.token_to_id('</s>')),
-                ('<s>', tokenizer.token_to_id('<s')),
+                ('<s>', tokenizer.token_to_id('<s>')),
             )
             tokenizer.enable_truncation(max_length=max_length)
 
         self.examples = []
+        all_lines = []
 
         src_files = Path(root).glob(f'*-{mode}.txt')
         for src_file in src_files:
-            print("🔥", src_file)
+            print("📄", src_file)
             lines = src_file.read_text(encoding='utf-8').splitlines()
-            self.examples += [x.ids for x in tokenizer.encode_batch(lines)]
+            # self.examples += [x.ids for x in tokenizer.encode_batch(lines)]
+            all_lines.extend(lines) 
+        
+        batch_encoding = tokenizer(all_lines, add_special_tokens=True, truncation=True, max_length=block_size)
+        self.examples = batch_encoding["input_ids"]
+        # self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
 
     def __len__(self):
         return len(self.examples)
 
-    def __getitem__(self, i):
-        return torch.tensor(self.examples[i])
+    def __getitem__(self, i) -> Dict[str, torch.tensor]:
+        return self.examples[i]

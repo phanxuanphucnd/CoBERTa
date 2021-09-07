@@ -3,10 +3,11 @@
 
 import os
 import math
+import argparse
 import datetime
 
 from pathlib import Path
-from torch.utils import data
+from dataset import CoLMDataset
 from transformers import RobertaConfig
 from transformers import RobertaForMaskedLM
 from transformers import RobertaTokenizerFast
@@ -15,13 +16,10 @@ from transformers import Trainer, TrainingArguments
 from transformers import DataCollatorForLanguageModeling
 from tokenizers.implementations import ByteLevelBPETokenizer
 
-from dataset import CoLMDataset
-
 def train_tokenizer(
     data_dir: str='./data', 
     vocab_size: int=52000, 
     min_frequency: int=2, 
-    output_dir: str='./models', 
     prefix: str='coberta-mini',
     **kwargs
 ):
@@ -35,7 +33,7 @@ def train_tokenizer(
         files=paths,
         vocab_size=vocab_size,
         min_frequency=min_frequency,
-        special_token=[
+        special_tokens=[
             "<s>",
             "<pad>",
             "</s>",
@@ -45,7 +43,10 @@ def train_tokenizer(
     )
 
     # TODO: Save files
-    tokenizer.save_model(output_dir, prefix)
+    if not os.path.exists(prefix):
+        os.makedirs(prefix)
+    
+    tokenizer.save_model(prefix)
 
 def train_language_model(
     data_dir: str='./data',
@@ -54,12 +55,14 @@ def train_language_model(
     max_position_embeddings: int=512,
     num_attention_heads: int=12,
     num_hidden_layers: int=6,
+    hidden_size: int=256,
     type_vocab_size: int=1,
     max_len: int=256,
     block_size: int=128,
     output_dir: str='./models/coberta-mini',
+    learning_rate: float=5e-4,
     num_train_epochs: int=40,
-    per_gpu_train_batch_size: int=64,
+    per_device_train_batch_size: int=128,
     save_steps: int=10_000,
     save_total_limit: int=2,
     prediction_loss_only: bool=True,
@@ -68,6 +71,7 @@ def train_language_model(
     config = RobertaConfig(
         vocab_size=vocab_size,
         max_position_embeddings=max_position_embeddings,
+        hidden_size=hidden_size,
         num_attention_heads=num_attention_heads,
         num_hidden_layers=num_hidden_layers,
         type_vocab_size=type_vocab_size,
@@ -76,7 +80,7 @@ def train_language_model(
     tokenizer = RobertaTokenizerFast.from_pretrained(pretrained_path, max_len=max_len)
 
     model = RobertaForMaskedLM(config=config)
-    print(f"🔥 The numbers of parameters: {model.num_parameters()}")
+    print(f"\n🔥 The numbers of parameters: {model.num_parameters()}\n")
 
     train_dataset = CoLMDataset(
         root=data_dir, 
@@ -98,8 +102,9 @@ def train_language_model(
     training_args = TrainingArguments(
         output_dir=output_dir,
         overwrite_output_dir=True,
+        learning_rate=learning_rate,
         num_train_epochs=num_train_epochs,
-        per_gpu_train_batch_size=per_gpu_train_batch_size,
+        per_device_train_batch_size=per_device_train_batch_size,
         save_steps=save_steps,
         save_total_limit=save_total_limit,
         prediction_loss_only=prediction_loss_only
@@ -110,70 +115,93 @@ def train_language_model(
         args=training_args,
         data_collator=data_collator,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset
+        eval_dataset=eval_dataset,
+        tokenizer=tokenizer
     )
 
     now = datetime.datetime.now()
     trainer.train()
 
-    print(f"⏰ Training time: {datetime.datetime.now() - now}.")
+    print(f"\n⏰ Training time: {datetime.datetime.now() - now}.")
 
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
 
     results = {}
 
-    eval_output = trainer.evaluate()
+    results = trainer.evaluate()
 
-    perplexity = math.exp(eval_output["eval_loss"])
-    result = {"perplexity": perplexity}
+    perplexity = math.exp(results["eval_loss"])
+    results["perplexity"] = perplexity
+
+    from pprint import pprint
+    pprint(results)
 
     output_eval_file = os.path.join(output_dir, "eval_results_lm.txt")
     with open(output_eval_file, "w") as writer:
         print("***** Eval results *****")
-        for key in sorted(result.keys()):
-            print("  %s = %s", key, str(result[key]))
-
-    results.update(result)
+        for key, value in sorted(results.items()):
+            print(f" {key} = {value}")
+            writer.write(f"{key} = {value}\n")
 
     return results
 
+if __name__ == '__main__':
 
-### TRAIN TOKENIZER
-
-VOCAB_SIZE = 52000
-MIN_FREQ = 2
-PREFIX = 'coberta-mini'
+    parser = argparse.ArgumentParser()
 
 
-train_tokenizer(
-    data_dir='./data/codataset',
-    vocab_size=VOCAB_SIZE,
-    min_frequency=MIN_FREQ,
-    output_dir='./models',
-    prefix=PREFIX
-)
+    parser.add_argument("--train_tokenizer", action='store_true', 
+                        help="Setup mode `train tokenizer`.")
+    parser.add_argument("--train_lm", action='store_true', 
+                        help="Setup mode `train language model`.")
+    parser.add_argument("--dataset_path", type=str, default='data/co-dataset',
+                        help="The path to the dataset to use.",)
+    parser.add_argument("--num_train_epochs", type=int, default=3, 
+                        help="Total number of training epochs to perform.")
+    parser.add_argument("--seed", type=int, default=123, 
+                        help="A seed for reproducible training.")
 
-### TRAIN LANGUAGE MODEL
+    args = parser.parse_args()
 
-NUM_ATTENTION_HEADS = 4
-NUM_HIDDEN_LAYERS = 4
-HIDDEN_SIZE = 256
-MAX_POSITION_EMBEDDINGS = 512
-MAX_LENGTH = 256
+    VOCAB_SIZE = 52000
+    MIN_FREQ = 2
+    PREFIX = 'coberta-mini'
 
-train_language_model(
-    data_dir='./data/codataset',
-    pretrained_path='./models/coberta-mini',
-    vocab_size=VOCAB_SIZE,
-    max_position_embeddings=MAX_POSITION_EMBEDDINGS,
-    num_attention_heads=NUM_ATTENTION_HEADS,
-    num_hidden_layers=NUM_HIDDEN_LAYERS,
-    type_vocab_size=1,
-    max_len=MAX_LENGTH,
-    output_dir='./models/coberta-mini',
-    num_train_epochs=40,
-    per_gpu_train_batch_size=36,
-    save_steps=10_000,
-    save_total_limit=2
-)
+    NUM_ATTENTION_HEADS = 4
+    NUM_HIDDEN_LAYERS = 4
+    HIDDEN_SIZE = 256
+    MAX_POSITION_EMBEDDINGS = 514
+    MAX_LENGTH = 256
+    LEARNING_RATE = 5e-4
+
+    ### TRAIN TOKENIZER
+    if args.train_tokenizer:
+        print("\nTRAINING TOKENIZER...")
+        train_tokenizer(
+            data_dir=args.dataset_path,
+            vocab_size=VOCAB_SIZE,
+            min_frequency=MIN_FREQ,
+            prefix=PREFIX
+        )
+    
+    ### TRAIN LANGUAGE MODEL
+    if args.train_lm:
+        print("\nTRAINING PRE_TRAINING LANGUAGE MODEL...")
+        train_language_model(
+            data_dir=args.dataset_path,
+            pretrained_path='coberta-mini',
+            vocab_size=VOCAB_SIZE,
+            max_position_embeddings=MAX_POSITION_EMBEDDINGS,
+            num_attention_heads=NUM_ATTENTION_HEADS,
+            num_hidden_layers=NUM_HIDDEN_LAYERS,
+            type_vocab_size=1,
+            hidden_size=HIDDEN_SIZE,
+            learning_rate=LEARNING_RATE, 
+            max_len=MAX_LENGTH,
+            output_dir='./models/coberta-mini',
+            num_train_epochs=args.num_train_epochs,
+            per_device_train_batch_size=256,
+            save_steps=10_000,
+            save_total_limit=2
+        )
