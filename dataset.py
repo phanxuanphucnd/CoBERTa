@@ -18,33 +18,42 @@ class CoLMDataset(Dataset):
         tokenizer: PreTrainedTokenizerBase=None,
         vocab_file: str='coberta-mini/vocab.json',
         merges_file: str='coberta-mini/merges.txt',
-        max_length: int=256,
+        max_length: int=128,
         block_size: int=128
     ) -> None:
         super(CoLMDataset, self).__init__()
-        if not tokenizer:
-            tokenizer = ByteLevelBPETokenizer(
-                vocab_file,
-                merges_file
-            )
-            tokenizer._tokenizer.post_processor = BertProcessing(
-                ('</s>', tokenizer.token_to_id('</s>')),
-                ('<s>', tokenizer.token_to_id('<s>')),
-            )
-            tokenizer.enable_truncation(max_length=max_length)
-
         self.examples = []
         all_lines = []
 
         src_files = Path(root).glob(f'*-{mode}.txt')
+        print(f"MODE: {mode.upper()}")
         for src_file in src_files:
             print("📄", src_file)
             lines = src_file.read_text(encoding='utf-8').splitlines()
-            # self.examples += [x.ids for x in tokenizer.encode_batch(lines)]
-            all_lines.extend(lines) 
+            lines = list(filter(None, lines))
+            if not tokenizer:
+                tokenizer = ByteLevelBPETokenizer(
+                    vocab_file,
+                    merges_file
+                )
+                tokenizer._tokenizer.post_processor = BertProcessing(
+                    ('</s>', tokenizer.token_to_id('</s>')),
+                    ('<s>', tokenizer.token_to_id('<s>')),
+                )
+                tokenizer.enable_truncation(max_length=max_length)
+                
+                self.examples += [x.ids for x in tokenizer.encode_batch(lines)]
+            else:
+                all_lines.extend(lines)
         
-        batch_encoding = tokenizer(all_lines, add_special_tokens=True, truncation=True, max_length=block_size)
-        self.examples = batch_encoding["input_ids"]
+        if tokenizer:
+            batch_encoding = tokenizer(all_lines, add_special_tokens=True, truncation=True, max_length=block_size)
+            self.examples = batch_encoding["input_ids"]
+    
+        # TODO: Free memory of somes variable
+        del batch_encoding
+        del all_lines
+
         self.examples = [{"input_ids": torch.tensor(e, dtype=torch.long)} for e in self.examples]
 
     def __len__(self):

@@ -85,13 +85,19 @@ def train_language_model(
     train_dataset = CoLMDataset(
         root=data_dir, 
         mode='train',
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
+        max_length=max_len,
     )
     eval_dataset = CoLMDataset(
         root=data_dir,
         mode='eval',
-        tokenizer=tokenizer
+        tokenizer=tokenizer,
+        max_length=max_len,
     )
+    print(f"\n---------- DATASET INFO ----------")
+    print(f"The length of Train Dataset: {len(train_dataset)}")
+    print(f"The length of Eval Dataset: {len(eval_dataset)}")
+    print(f"----------------------------------")
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer,
@@ -109,7 +115,7 @@ def train_language_model(
         save_total_limit=save_total_limit,
         prediction_loss_only=prediction_loss_only
     )
-
+    print(f"\n---------- TRAINING PRETRAIN LANGUAGE MODEL ----------")
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -157,7 +163,7 @@ if __name__ == '__main__':
                         help="Setup mode `train language model`.")
     parser.add_argument("--dataset_path", type=str, default='data/co-dataset',
                         help="The path to the dataset to use.",)
-    parser.add_argument("--num_train_epochs", type=int, default=3, 
+    parser.add_argument("--num_train_epochs", type=int, default=1, 
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=123, 
                         help="A seed for reproducible training.")
@@ -172,7 +178,7 @@ if __name__ == '__main__':
     NUM_HIDDEN_LAYERS = 4
     HIDDEN_SIZE = 256
     MAX_POSITION_EMBEDDINGS = 514
-    MAX_LENGTH = 256
+    MAX_LENGTH = 128
     LEARNING_RATE = 5e-4
 
     ### TRAIN TOKENIZER
@@ -201,7 +207,7 @@ if __name__ == '__main__':
             max_len=MAX_LENGTH,
             output_dir='./models/coberta-mini',
             num_train_epochs=args.num_train_epochs,
-            per_device_train_batch_size=512,
+            per_device_train_batch_size=64,
             save_steps=10_000,
             save_total_limit=2
         )

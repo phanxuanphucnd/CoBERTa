@@ -25,8 +25,8 @@
 
 Model | #params | Arch.	 | Pre-training data
 ---|---|---|---
-`coberta-mini` | 50M | mini | 5GB of texts
-`coberta-small` | 70M | small | 5GB of texts
+`coberta-mini` | 21M | mini | 4.3GB of texts
+`coberta-small` | 70M | small | 4.3GB of texts
 
 ## License
 
