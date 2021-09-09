@@ -3,6 +3,7 @@
 
 import os
 import math
+import torch
 import argparse
 import datetime
 
@@ -104,6 +105,8 @@ def train_language_model(
         mlm=True,
         mlm_probability=0.15
     )
+
+    print(f"Check that PyTorch sees it: {torch.cuda.is_available()}")
     
     training_args = TrainingArguments(
         output_dir=output_dir,
@@ -179,7 +182,7 @@ if __name__ == '__main__':
     HIDDEN_SIZE = 256
     MAX_POSITION_EMBEDDINGS = 514
     MAX_LENGTH = 128
-    LEARNING_RATE = 5e-4
+    LEARNING_RATE = 1e-3
 
     ### TRAIN TOKENIZER
     if args.train_tokenizer:
