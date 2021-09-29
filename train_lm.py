@@ -51,7 +51,7 @@ def train_tokenizer(
 
 def train_language_model(
     data_dir: str='./data',
-    pretrained_path: str='./models/coberta-mini',
+    pretrained_path: str='./coberta-mini',
     vocab_size: int=52000,
     max_position_embeddings: int=512,
     num_attention_heads: int=12,
@@ -166,21 +166,23 @@ if __name__ == '__main__':
                         help="Setup mode `train language model`.")
     parser.add_argument("--dataset_path", type=str, default='data/co-dataset',
                         help="The path to the dataset to use.",)
-    parser.add_argument("--num_train_epochs", type=int, default=1, 
+    parser.add_argument("--bs", type=int, default=48, 
+                        help="Total number of batch size to perform.")
+    parser.add_argument("--nepochs", type=int, default=1, 
                         help="Total number of training epochs to perform.")
     parser.add_argument("--seed", type=int, default=123, 
                         help="A seed for reproducible training.")
 
     args = parser.parse_args()
 
-    VOCAB_SIZE = 52000
+    VOCAB_SIZE = 32000
     MIN_FREQ = 2
     PREFIX = 'coberta-mini'
 
     NUM_ATTENTION_HEADS = 4
     NUM_HIDDEN_LAYERS = 4
-    HIDDEN_SIZE = 256
-    MAX_POSITION_EMBEDDINGS = 514
+    HIDDEN_SIZE = 512
+    MAX_POSITION_EMBEDDINGS = 258
     MAX_LENGTH = 128
     LEARNING_RATE = 1e-3
 
@@ -199,18 +201,18 @@ if __name__ == '__main__':
         print("\nTRAINING PRE_TRAINING LANGUAGE MODEL...")
         train_language_model(
             data_dir=args.dataset_path,
-            pretrained_path='coberta-mini',
+            pretrained_path='coberta-mini-32k',
             vocab_size=VOCAB_SIZE,
             max_position_embeddings=MAX_POSITION_EMBEDDINGS,
             num_attention_heads=NUM_ATTENTION_HEADS,
             num_hidden_layers=NUM_HIDDEN_LAYERS,
-            type_vocab_size=2,
+            type_vocab_size=1,
             hidden_size=HIDDEN_SIZE,
             learning_rate=LEARNING_RATE, 
             max_len=MAX_LENGTH,
-            output_dir='./models/coberta-mini',
-            num_train_epochs=args.num_train_epochs,
-            per_device_train_batch_size=64,
+            output_dir='./models/coberta-small',
+            num_train_epochs=args.nepochs,
+            per_device_train_batch_size=args.bs,
             save_steps=10_000,
             save_total_limit=2
         )
