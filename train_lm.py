@@ -15,19 +15,29 @@ from transformers import RobertaTokenizerFast
 from transformers import LineByLineTextDataset
 from transformers import Trainer, TrainingArguments
 from transformers import DataCollatorForLanguageModeling
-from tokenizers.implementations import ByteLevelBPETokenizer
+from tokenizers.implementations import ByteLevelBPETokenizer, CharBPETokenizer
+
+TOKENIZER_TYPE = [
+    'byte-bpe',
+    'bpe'
+]
 
 def train_tokenizer(
     data_dir: str='./data', 
     vocab_size: int=52000, 
     min_frequency: int=2, 
     prefix: str='coberta-mini',
+    tokenizer_type: str='byte-bpe',
     **kwargs
 ):
     paths = [str(x) for x in Path(data_dir).glob('*.txt')]
 
-    # TODO: Initialize a tokenizer
-    tokenizer = ByteLevelBPETokenizer()
+    if tokenizer_type.lower() == 'bye-bpe':
+        # TODO: Initialize a Bye-level BPE tokenizer
+        tokenizer = ByteLevelBPETokenizer()
+    elif tokenizer_type.lower() == 'bpe':
+        # TODO: Initialize a BPE tokenizer
+        tokenizer = CharBPETokenizer()
 
     # TODO: Customize training
     tokenizer.train(
@@ -162,6 +172,8 @@ if __name__ == '__main__':
 
     parser.add_argument("--train_tokenizer", action='store_true', 
                         help="Setup mode `train tokenizer`.")
+    parser.add_argument("--tokenizer_type", type=str, default='byte-bpe',  
+                        help="Setup mode `train tokenizer`.")
     parser.add_argument("--train_lm", action='store_true', 
                         help="Setup mode `train language model`.")
     parser.add_argument("--dataset_path", type=str, default='data/co-dataset',
@@ -177,10 +189,10 @@ if __name__ == '__main__':
 
     VOCAB_SIZE = 32000
     MIN_FREQ = 2
-    PREFIX = 'coberta-mini'
+    PREFIX = 'coberta-medium'
 
-    NUM_ATTENTION_HEADS = 4
-    NUM_HIDDEN_LAYERS = 4
+    NUM_ATTENTION_HEADS = 8
+    NUM_HIDDEN_LAYERS = 8
     HIDDEN_SIZE = 512
     MAX_POSITION_EMBEDDINGS = 258
     MAX_LENGTH = 128
@@ -193,7 +205,8 @@ if __name__ == '__main__':
             data_dir=args.dataset_path,
             vocab_size=VOCAB_SIZE,
             min_frequency=MIN_FREQ,
-            prefix=PREFIX
+            prefix=PREFIX,
+            tokenizer_type=args.tokenizer_type
         )
     
     ### TRAIN LANGUAGE MODEL
