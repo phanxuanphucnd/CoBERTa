@@ -32,12 +32,14 @@ def train_tokenizer(
 ):
     paths = [str(x) for x in Path(data_dir).glob('*.txt')]
 
-    if tokenizer_type.lower() == 'bye-bpe':
+    if tokenizer_type.lower() == 'byte-bpe':
         # TODO: Initialize a Bye-level BPE tokenizer
         tokenizer = ByteLevelBPETokenizer()
     elif tokenizer_type.lower() == 'bpe':
         # TODO: Initialize a BPE tokenizer
         tokenizer = CharBPETokenizer()
+    else:
+        raise ValueError(f"`tokenizer_type` must be in Optinals: {TOKENIZER_TYPE}")
 
     # TODO: Customize training
     tokenizer.train(
