@@ -9,6 +9,8 @@
 
 # <a name='introduction'></a> CoBERTa
 
+How to train a tranformers-based language model from a custom dataset?
+
 `CoBERTa` is a pre-trained models are the pre-trained language models for Comment-in-social/ Conversation Vietnamese datasets:
 
  - Two `CoBERTa` versions of `mini` and `small` are first public large-scale monolingual language models pre-trained for Comment-in-Social/ Conversation Vietnamese. `CoBERTa` pre-training approach is based on [RoBERTa](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.md).
