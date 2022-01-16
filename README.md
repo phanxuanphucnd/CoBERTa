@@ -4,7 +4,7 @@
 2. [How to use ``CoBERTa``](#how_to_use_coberta)
     - [Installation](#installation)
     - [Pre-trained models](#models)
-    - [Example usage](#usage)
+    - [How to train LM](#usage)
 
 
 # <a name='introduction'></a> CoBERTa
@@ -30,7 +30,7 @@ Model | #params | Arch.	 | Pre-training data
 `coberta-mini` | 21M | mini | 4.3GB of texts
 `coberta-small` | 70M | small | 4.3GB of texts
 
-## Example usuage <a name='usage'></a>
+## How to train a Langauge Model <a name='usage'></a>
 
 - Train tokenizer
 
