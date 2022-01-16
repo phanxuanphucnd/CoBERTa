@@ -30,6 +30,22 @@ Model | #params | Arch.	 | Pre-training data
 `coberta-mini` | 21M | mini | 4.3GB of texts
 `coberta-small` | 70M | small | 4.3GB of texts
 
+## Example usuage <a name='usage'></a>
+
+- Train tokenizer
+
+```js
+python train_lm.py --train_tokenizer
+```
+
+- Train language model from scratch
+
+```js
+python train_lm.py --train_lm
+```
+
+Arguments: see detail in `train_lm.py`.
+
 ## License
 
     MIT License
